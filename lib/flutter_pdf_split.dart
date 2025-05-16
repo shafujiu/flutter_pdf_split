@@ -38,6 +38,7 @@ class FlutterPdfSplitResult {
   }
 }
 
+
 class FlutterPdfSplit {
   static const MethodChannel _channel =
       const MethodChannel('flutter_pdf_split');
@@ -58,4 +59,24 @@ class FlutterPdfSplit {
         await (_channel.invokeMethod('split', args.toMap));
     return FlutterPdfSplitResult(result);
   }
+
+  static Future<String?> splitToMerge({required String filePath, required String outpath, required List<int> pageNumbers}) async {
+    return _splitToMerge(filePath, outpath, pageNumbers);
+  }
+
+  // 选择指定页码的pdf文件，合并成一个pdf文件
+  static Future<String?> _splitToMerge(String filePath, String outpath, List<int> pageNumbers) async {
+    Map<dynamic, dynamic> result =
+        await (_channel.invokeMethod('splitToMerge', {
+          "filePath": filePath,
+          "outpath": outpath,
+          "pageNumbers": pageNumbers
+        }));
+    if (result["outpath"] is String) {
+      return result["outpath"];
+    }
+    return null;
+  }
 }
+
+

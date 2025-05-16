@@ -24,7 +24,7 @@ public class SwiftFlutterPdfSplitPlugin: NSObject, FlutterPlugin {
             let pdfFilePath = args["filePath"] as! String
             let outDirectory = args["outDirectory"] as! String
             let outFileNamePrefix = args["outFileNamePrefix"] as! String
-
+            
             if #available(iOS 11.0, *) {
                 let url = NSURL.fileURL(withPath: pdfFilePath)
                 if url.isFileURL {
@@ -51,7 +51,42 @@ public class SwiftFlutterPdfSplitPlugin: NSObject, FlutterPlugin {
             } else {
                 result(FlutterMethodNotImplemented)
             }
-
+            
+        }
+        else if call.method == "splitToMerge" {
+            guard let args = call.arguments as! NSDictionary? else {
+                return result(FlutterError(code: "RENDER_ERROR",
+                                           message: "Arguments not sended",
+                                           details: nil))
+            }
+            let filePath = args["filePath"] as! String
+            let outpath = args["outpath"] as! String
+            let pageNumbers = args["pageNumbers"] as! [Int]
+            
+            let url = NSURL.fileURL(withPath: filePath)
+            if url.isFileURL {
+                let pdfDocument = PDFDocument(url: url)
+                let pdfDocumentToMerge = PDFDocument.init()
+                pageNumbers.reversed().forEach {
+                    if let page = pdfDocument?.page(at: $0) {
+                        pdfDocumentToMerge.insert(page, at: 0)
+                    }
+                }
+                let success = pdfDocumentToMerge.write(toFile: outpath)
+                if success {
+                    var splitResult = [String : Any]()
+                    splitResult["outpath"] = outpath
+                    result(splitResult)
+                } else {
+                    result(FlutterError(code: "RENDER_ERROR",
+                                        message: "Failed to write to file",
+                                        details: nil))
+                }
+            } else {
+                result(FlutterError(code: "RENDER_ERROR",
+                                    message: "Failed to read file",
+                                    details: nil))
+            }
         }
         else {
             result(FlutterMethodNotImplemented)

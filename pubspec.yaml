@@ -1,7 +1,6 @@
 name: flutter_pdf_split
 description: A new flutter plugin project.
 version: 0.2.0
-author: Mobizel
 homepage: https://github.com/lbaey/flutter_pdf_split
 
 environment:
